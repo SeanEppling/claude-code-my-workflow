@@ -70,3 +70,11 @@ When a mistake is corrected, append a `[LEARN:category]` entry below.
 [LEARN:meta] Dogfooding principles must be enforced: plan-first, spec-then-plan, quality gates, session logs → we follow our own guide.
 
 [LEARN:meta] Template development work (building infrastructure, docs) doesn't create session logs in quality_reports/ → those are for user work (slides, analysis), not meta-work. Keeps template clean for users who fork.
+
+## EOG Oil Well Compiler Project
+
+[LEARN:project] This repo has been adapted for the EOG Oil Well Information Compiler. Python + CSV/Excel data + conversational AI agent + HTML/PDF reports. Interview demo scope (foundation-quality + polished enough to present at EOG).
+
+[LEARN:project] Data source: CSV/Excel files in data/raw/ (authoritative). Pipeline: raw → src/compiler/ → data/processed/ → src/agent/ / src/reports/. Never modify raw data in code.
+
+[LEARN:project] Tech stack: Python (pandas, anthropic SDK, jinja2, weasyprint). No R, no LaTeX. Quality gate 90/100 for PR/demo readiness.

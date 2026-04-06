@@ -127,5 +127,6 @@
       }
     ]
   },
-  "plansDirectory": "quality_reports/plans"
+  "plansDirectory": "quality_reports/plans",
+  "enableAllProjectMcpServers": true
 }

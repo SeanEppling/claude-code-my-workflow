@@ -1,60 +1,48 @@
 ---
 paths:
-  - "Slides/**/*.tex"
-  - "Quarto/**/*.qmd"
+  - "data/**/*"
+  - "src/**/*.py"
 ---
 
-# Beamer → Quarto Auto-Sync Rule (MANDATORY)
+# Data Source of Truth: Sync Rule (MANDATORY)
 
-**Every edit to a Beamer `.tex` file MUST be immediately synced to the corresponding Quarto `.qmd` file — automatically, without the user asking.** This is non-negotiable.
+**`data/wells.db` (SQLite) is the authoritative data store. All query results and reports derive from it. Never hand-edit the database or bypass the schema.**
 
 ## The Rule
 
-When you modify a Beamer `.tex` file, you MUST also apply the equivalent change to the Quarto `.qmd` (if it exists) **in the same task**, before reporting completion. Do NOT wait to be asked. Do NOT just "flag the drift." Just do it.
+When the schema or the data in `wells.db` changes, ALL downstream outputs that depend on it MUST be regenerated in the same task before reporting completion. Do NOT wait to be asked.
 
-## Lecture Mapping
+## Data Flow
 
-<!-- Customize this table for your lectures -->
-| Lecture | Beamer | Quarto |
-|---------|--------|--------|
-| 1 | `Slides/Lecture1_Topic.tex` | `Quarto/Lecture1_Topic.qmd` |
-| 2 | `Slides/Lecture2_Topic.tex` | `Quarto/Lecture2_Topic.qmd` |
-<!-- Add rows as you create lectures -->
+```
+data/raw/*.csv / *.xlsx     (external import input — do not modify programmatically)
+        │
+        ▼
+src/compiler/loader.py      (ETL: normalize + insert into DB)
+        │
+        ▼
+data/wells.db               (SOURCE OF TRUTH — SQLite)
+        │
+        ├── src/agent/      → conversational responses (derived)
+        └── src/reports/    → reports/*.html / *.pdf (derived)
+```
 
-## Workflow (Every Time)
+## Workflow (Every Time DB Schema or Data Changes)
 
-1. Apply fix to Beamer `.tex`
-2. **Immediately** apply equivalent fix to Quarto `.qmd`
-3. Compile Beamer (3-pass xelatex)
-4. Render Quarto (`./scripts/sync_to_docs.sh LectureN`)
-5. Only then report task complete
+1. Schema change → update `src/compiler/schema.py`, re-run `python scripts/init_db.py`
+2. Data change → re-run the ETL loader against the source file
+3. Regenerate any affected reports
+4. Only then report task complete
 
-## LaTeX → Quarto Translation Reference
+## When NOT to Re-Run
 
-| Beamer | Quarto Equivalent |
-| ------ | ----------------- |
-| `\muted{text}` | `[text]{style="color: #525252;"}` |
-| `\key{text}` | `[**text**]{.emorygold}` |
-| `\textcolor{positive}{text}` | `[text]{.positive}` |
-| `\textcolor{negative}{text}` | `[text]{.negative}` |
-| `\item text` | `- text` |
-| `\begin{highlightbox}` | `::: {.highlightbox}` |
-| `\begin{methodbox}` | `::: {.methodbox}` |
-| `$formula$` | `$formula$` (same) |
-
-## When NOT to Sync
-
-- Quarto file doesn't exist yet
-- Change is LaTeX-only infrastructure (preamble, theme files)
-- Explicitly told to skip Quarto sync
+- Compiler logic change only (no schema/data change) — re-run tests instead
+- Documentation-only change
+- Explicitly told to skip
 
 ## Enforcement
 
-Before marking any Beamer editing task as complete, check:
-> "Did I also update the Quarto file?"
+Before marking any data-related task complete, ask:
+> "Is `data/wells.db` up to date with this change, and are all downstream outputs regenerated?"
 
-If the answer is no and a Quarto file exists, **you are NOT done.**
-
-## When to Update This Table
-
-After creating a new Quarto translation, add it to the mapping table above.
+If no, **you are NOT done.**

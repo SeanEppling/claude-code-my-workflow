@@ -1,8 +1,8 @@
 ---
 paths:
-  - "Slides/**/*.tex"
-  - "Quarto/**/*.qmd"
-  - "scripts/**/*.R"
+  - "src/**/*.py"
+  - "data/**/*"
+  - "reports/**/*"
 ---
 
 # Quality Gates & Scoring Rubrics
@@ -10,58 +10,52 @@ paths:
 ## Thresholds
 
 - **80/100 = Commit** -- good enough to save
-- **90/100 = PR** -- ready for deployment
-- **95/100 = Excellence** -- aspirational
+- **90/100 = PR** -- ready for deployment / interview demo
+- **95/100 = Excellence** -- fully polished, production-ready
 
-## Quarto Slides (.qmd)
-
-| Severity | Issue | Deduction |
-|----------|-------|-----------|
-| Critical | Compilation failure | -100 |
-| Critical | Equation overflow | -20 |
-| Critical | Broken citation | -15 |
-| Critical | Typo in equation | -10 |
-| Major | Text overflow | -5 |
-| Major | TikZ label overlap | -5 |
-| Major | Notation inconsistency | -3 |
-| Minor | Font size reduction | -1 per slide |
-| Minor | Long lines (>100 chars) | -1 (EXCEPT documented math formulas) |
-
-## R Scripts (.R)
+## Python Source Code (`src/**/*.py`)
 
 | Severity | Issue | Deduction |
 |----------|-------|-----------|
-| Critical | Syntax errors | -100 |
-| Critical | Domain-specific bugs | -30 |
+| Critical | Syntax error / import failure | -100 |
 | Critical | Hardcoded absolute paths | -20 |
-| Major | Missing set.seed() | -10 |
-| Major | Missing figure generation | -5 |
+| Critical | Raw data file modified by code | -20 |
+| Critical | Unhandled exception on valid input | -15 |
+| Major | No input validation at data boundaries | -10 |
+| Major | Missing docstring on public functions | -5 |
+| Major | Unused imports | -3 |
+| Minor | Lines > 100 chars (non-formula) | -1 per line |
+| Minor | Magic numbers without comment | -2 |
 
-## Beamer Slides (.tex)
+## Data Quality (`data/**/*`)
 
 | Severity | Issue | Deduction |
 |----------|-------|-----------|
-| Critical | XeLaTeX compilation failure | -100 |
-| Critical | Undefined citation | -15 |
-| Critical | Overfull hbox > 10pt | -10 |
+| Critical | Processed file is stale (older than raw) | -20 |
+| Critical | Required field missing from schema | -15 |
+| Critical | Duplicate well IDs in processed output | -15 |
+| Major | Null values in required fields | -10 |
+| Major | Schema mismatch between raw and CLAUDE.md | -5 |
+| Minor | Inconsistent casing in categorical fields | -2 |
+
+## Reports (`reports/**/*`)
+
+| Severity | Issue | Deduction |
+|----------|-------|-----------|
+| Critical | Report fails to render | -100 |
+| Critical | Data values don't match processed source | -20 |
+| Major | Missing required sections (well ID, status, county) | -10 |
+| Major | Broken links or missing images | -5 |
+| Minor | Typo in report content | -2 |
 
 ## Enforcement
 
-- **Score < 80:** Block commit. List blocking issues.
-- **Score < 90:** Allow commit, warn. List recommendations.
-- User can override with justification.
+- **Score < 80:** Block commit. List blocking issues explicitly.
+- **Score 80–89:** Allow commit, warn. List recommendations.
+- **Score >= 90:** Approve for PR / demo.
+- User can override with explicit justification.
 
 ## Quality Reports
 
 Generated **only at merge time**. Use `templates/quality-report.md` for format.
 Save to `quality_reports/merges/YYYY-MM-DD_[branch-name].md`.
-
-## Tolerance Thresholds (Research)
-
-<!-- Customize for your domain -->
-
-| Quantity | Tolerance | Rationale |
-|----------|-----------|-----------|
-| Point estimates | [e.g., 1e-6] | [Numerical precision] |
-| Standard errors | [e.g., 1e-4] | [MC variability] |
-| Coverage rates | [e.g., +/- 0.01] | [MC with B reps] |

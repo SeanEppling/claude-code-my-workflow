@@ -1,53 +1,78 @@
 ---
 paths:
-  - "Slides/**/*.tex"
-  - "Quarto/**/*.qmd"
-  - "docs/**"
+  - "src/**/*.py"
+  - "data/**/*"
+  - "reports/**/*"
 ---
 
 # Task Completion Verification Protocol
 
 **At the end of EVERY task, Claude MUST verify the output works correctly.** This is non-negotiable.
 
-## For Quarto/HTML Slides:
-1. Run `./scripts/sync_to_docs.sh` (or `./scripts/sync_to_docs.sh LectureN`) to render and deploy
-2. Open the HTML in browser: `open docs/slides/LectureX.html` (macOS) or `xdg-open` (Linux)
-3. Verify images display by reading 2-3 image files to confirm valid content
-4. Check HTML source for correct image paths
-5. Check for overflow by scanning dense slides
-6. Verify environment parity: every Beamer box environment has a CSS equivalent in the QMD
-7. Report verification results
+## For Python Source Code Changes
 
-## For LaTeX/Beamer Slides:
-1. Compile with xelatex and check for errors
-2. Open the PDF to verify figures render (`open` on macOS, `xdg-open` on Linux)
-3. Check for overfull hbox warnings
+1. Verify the package imports cleanly: `python3 -c "import src"`
+2. Run tests if they exist: `python -m pytest tests/ -v`
+3. Confirm no syntax errors in modified files
+4. Spot-check the output of any changed function with a simple call
 
-## For TikZ Diagrams in HTML/Quarto:
-1. Browsers **cannot** display PDF images inline — ALWAYS convert to SVG
-2. Use SVG (vector format) for crisp rendering: `pdf2svg input.pdf output.svg`
-3. **NEVER use PNG for diagrams** — PNG is raster and looks blurry
-4. Verify SVG files contain valid XML/SVG markup
-5. Copy SVGs to `docs/Figures/LectureX/` via `sync_to_docs.sh`
-6. **Freshness check:** Before using any TikZ SVG, verify extract_tikz.tex matches current Beamer source
+## For Database / Schema Changes (`src/compiler/schema.py`, `src/compiler/db.py`)
 
-## For R Scripts:
-1. Run `Rscript scripts/R/filename.R`
-2. Verify output files (PDF, RDS) were created with non-zero size
-3. Spot-check estimates for reasonable magnitude
+```bash
+# Re-initialize the database
+python scripts/init_db.py
 
-## Common Pitfalls:
-- **PDF images in HTML**: Browsers don't render PDFs inline → convert to SVG
-- **Relative paths**: `../Figures/` works from `Quarto/` but not from `docs/slides/` → use `sync_to_docs.sh`
-- **Assuming success**: Always verify output files exist AND contain correct content
-- **Stale TikZ SVGs**: extract_tikz.tex diverges from Beamer source → always diff-check
-
-## Verification Checklist:
+# Verify the wells table exists and has correct columns
+python3 -c "
+from src.compiler.db import get_engine
+from sqlalchemy import inspect
+eng = get_engine()
+cols = [c['name'] for c in inspect(eng).get_columns('wells')]
+print('Columns:', cols)
+"
 ```
-[ ] Output file created successfully
-[ ] No compilation/render errors
-[ ] Images/figures display correctly
-[ ] Paths resolve in deployment location (docs/)
-[ ] Opened in browser/viewer to confirm visual appearance
-[ ] Reported results to user
+
+- Verify `data/wells.db` was created (exists, size > 0)
+- Verify `wells` table is present with all expected columns
+- Confirm `data/raw/` was NOT modified: `git diff data/raw/`
+
+## For ETL Loader Changes (`src/compiler/loader.py`)
+
+```bash
+python -m src.compiler.loader data/raw/yourfile.csv 2>&1
 ```
+
+- Verify row count in DB after load is reasonable
+- Spot-check: key fields (well_id, status, county) are non-null
+- Confirm source file was NOT modified
+
+## For Agent Changes (`src/agent/`)
+
+1. Run a smoke test: `python -m src.agent.main --query "list active wells"`
+2. Verify the response is structured (not an error or empty)
+3. Confirm the agent queries `data/wells.db`, not hardcoded values
+
+## For Report Changes (`src/reports/`)
+
+1. Generate a test report: `python -m src.reports.generate --output reports/ --format html`
+2. Verify the output file exists and is non-empty
+3. Open the report: `open reports/*.html`
+4. Spot-check that data values match the DB
+
+## Verification Checklist
+
+```
+[ ] No import errors or syntax failures
+[ ] Tests pass (or no tests exist yet — note this)
+[ ] data/wells.db exists and wells table is present
+[ ] Raw data in data/raw/ untouched
+[ ] Output files created with expected content
+[ ] Reported results to user with file paths
+```
+
+## Common Pitfalls
+
+- **Stale DB:** Schema changed but `init_db.py` not re-run → re-run it
+- **Hardcoded paths:** Use `pathlib.Path` and relative paths from project root
+- **Silent failures:** Check return values and file sizes, don't assume success
+- **Schema drift:** Column names in code diverge from `src/compiler/schema.py` → always reference schema.py

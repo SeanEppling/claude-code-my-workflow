@@ -1,69 +1,51 @@
 ---
 paths:
-  - "Figures/**/*"
-  - "Quarto/**/*.qmd"
-  - "Slides/**/*.tex"
+  - "data/**/*"
+  - "src/**/*.py"
+  - "reports/**/*"
 ---
 
 # Single Source of Truth: Enforcement Protocol
 
-**The Beamer `.tex` file is the authoritative source for ALL content.** Everything else is derived.
+**`data/wells.db` (SQLite) is the authoritative data store for ALL well data.** Everything else is derived.
 
 ## The SSOT Chain
 
 ```
-Beamer .tex (SOURCE OF TRUTH)
-  ├── extract_tikz.tex → PDF → SVGs (derived)
-  ├── Quarto .qmd → HTML (derived)
-  ├── Bibliography_base.bib (shared)
-  └── Figures/LectureN/*.rds → plotly charts (data source)
+data/raw/*.csv / *.xlsx   (import input — do not modify programmatically)
+  │
+  └── src/compiler/loader.py → data/wells.db  (SOURCE OF TRUTH)
+                                    │
+                                    ├── src/agent/   → conversational responses (derived)
+                                    └── src/reports/ → reports/*.html / *.pdf  (derived)
 
 NEVER edit derived artifacts independently.
 ALWAYS propagate changes from source → derived.
 ```
 
----
+## DB Integrity Rules
 
-## TikZ Freshness Protocol (MANDATORY)
+- `data/wells.db` must NEVER be edited by hand
+- All data enters the DB through `src/compiler/loader.py` (ETL)
+- Schema is defined exclusively in `src/compiler/schema.py`
+- If data is wrong, fix the source file and re-run the loader — never patch the DB directly
 
-**Before using ANY TikZ SVG in a Quarto slide, verify it matches the current Beamer source.**
-
-### Diff-Check Procedure
-
-1. Read the TikZ block from the Beamer `.tex` file
-2. Read the corresponding block from `Figures/LectureN/extract_tikz.tex`
-3. Compare EVERY coordinate, label, color, opacity, and anchor point
-4. If ANY difference exists: update `extract_tikz.tex` from Beamer, recompile, regenerate SVGs
-5. Only then reference the SVG in the QMD
-
-### When to Re-Extract
-
-Re-extract ALL TikZ diagrams when:
-- The Beamer `.tex` file has been modified since last extraction
-- Starting a new Quarto translation
-- Any TikZ-related quality issue is reported
-- Before any commit that includes QMD changes
-
----
-
-## Environment Parity (MANDATORY)
-
-**Every Beamer environment MUST have a CSS equivalent before translation begins.**
-
-1. Scan the Beamer source for all custom environments
-2. Check each against your theme SCSS file
-3. If ANY environment is missing from SCSS, create it BEFORE translating
-
----
-
-## Content Fidelity Checklist
+## Data Fidelity Checklist
 
 ```
-[ ] Frame count: Beamer frames == Quarto slides
-[ ] Math check: every equation appears with identical notation
-[ ] Citation check: every \cite has a @key in Quarto
-[ ] Environment check: every Beamer box has CSS equivalent
-[ ] Figure check: every \includegraphics has SVG or plotly equivalent
-[ ] No added content: Quarto does not invent slides not in Beamer
-[ ] No dropped content: every Beamer idea appears in Quarto
+[ ] DB was not modified by hand
+[ ] Schema in src/compiler/schema.py matches CLAUDE.md Data Schema Reference
+[ ] All report values trace back to a query against data/wells.db
+[ ] No hardcoded well data values in src/agent/ or src/reports/
+[ ] ETL loader ran without errors after any import
 ```
+
+## Schema Change Protocol
+
+If the `wells` table schema changes (column added, renamed, removed):
+1. Update `src/compiler/schema.py` Column definitions
+2. Update `CLAUDE.md` Data Schema Reference table
+3. Update `.claude/rules/knowledge-base-template.md` field reference
+4. Re-run `python scripts/init_db.py` (will apply changes on a new DB)
+5. Re-run ETL loader to repopulate
+6. Update `src/reports/` template field references if affected
