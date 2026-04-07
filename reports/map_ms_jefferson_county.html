@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EOG Wells — MS, Jefferson County</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body{margin:0;padding:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#1a1a2e;color:#eee}
+  #header{padding:10px 18px;background:#16213e;border-bottom:2px solid #0f3460;display:flex;align-items:baseline;gap:14px}
+  #header h1{font-size:1rem;font-weight:600;color:#e2e8f0;margin:0}
+  #header .sub{font-size:.78rem;color:#94a3b8}
+  #map{height:calc(100vh - 44px)}
+  .legend{background:rgba(22,33,62,.95);border:1px solid #0f3460;border-radius:6px;padding:10px 14px;font-size:.78rem;line-height:1.5}
+  .legend h4{margin:0 0 6px;font-size:.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em}
+  .leaflet-popup-content-wrapper{border-radius:6px;font-size:.82rem}
+</style>
+</head>
+<body>
+<div id="header">
+  <h1>EOG Resources — Oil Well Map</h1>
+  <span class="sub">33 wells &nbsp;·&nbsp; 1 states &nbsp;·&nbsp; MS, Jefferson County</span>
+</div>
+<div id="map"></div>
+<script>
+(function(){
+  var geojson = {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.87603,31.71472]},"properties":{"popup":"<strong>CHANDLER N A 26-16 1</strong><br>API: 23-065-20255<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.87434,31.7128]},"properties":{"popup":"<strong>CHANDLER N A 26-16 2</strong><br>API: 23-065-20319<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.63115,31.55317]},"properties":{"popup":"<strong>Carraway 20-14 1</strong><br>API: 23-065-21028<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.86186,31.72088]},"properties":{"popup":"<strong>DALE 25-7 1</strong><br>API: 23-065-20263<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.8843,31.71297]},"properties":{"popup":"<strong>DENKMANN 26-14 1</strong><br>API: 23-065-20309<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.8829,31.7256]},"properties":{"popup":"<strong>DENKMANN 26-3 1</strong><br>API: 23-065-20323<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.8801,31.71275]},"properties":{"popup":"<strong>DENKMANN LBR 26-15 1</strong><br>API: 23-065-20320<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.86842,31.7202]},"properties":{"popup":"<strong>DENKMANN LBR25-5 1</strong><br>API: 23-065-20257<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.88374,31.71902]},"properties":{"popup":"<strong>DENKMANN LUMBER CO 26-11 1</strong><br>API: 23-065-20267<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.62687,31.54115]},"properties":{"popup":"<strong>DYKES 29-10 1</strong><br>API: 23-065-21059<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.85788,31.72152]},"properties":{"popup":"<strong>FICB 25-8 1</strong><br>API: 23-065-20328<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.84621,31.71699]},"properties":{"popup":"<strong>FICB 30-10 1</strong><br>API: 23-065-20324<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.85365,31.71309]},"properties":{"popup":"<strong>FICB 30-13 1</strong><br>API: 23-065-20315<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.847601,31.725719]},"properties":{"popup":"<strong>FICB 30-2 1</strong><br>API: 23-065-20316<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.848989,31.721586]},"properties":{"popup":"<strong>FICB 30-6 1</strong><br>API: 23-065-20325<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.844907,31.721077]},"properties":{"popup":"<strong>FICB 30-7 1</strong><br>API: 23-065-20330<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.87117,31.71034]},"properties":{"popup":"<strong>FICB 36-4 1</strong><br>API: 23-065-20329<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.69157,31.52639]},"properties":{"popup":"<strong>FLAME ROYALTIES 34-9 1</strong><br>API: 23-065-21067<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.90161,31.74302]},"properties":{"popup":"<strong>GWINVILLE 15-14 2</strong><br>API: 23-065-20528<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.887088,31.734795]},"properties":{"popup":"<strong>GWINVILLE 23-5 2</strong><br>API: 23-065-20799<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.885061,31.7363]},"properties":{"popup":"<strong>GWINVILLE 23-6 1</strong><br>API: 23-065-20413<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.86243,31.72682]},"properties":{"popup":"<strong>GWINVILLE 24-15 1</strong><br>API: 23-065-20449<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.86064,31.72437]},"properties":{"popup":"<strong>GWINVILLE 25-2 1</strong><br>API: 23-065-20381<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.86438,31.72412]},"properties":{"popup":"<strong>GWINVILLE 25-3 2</strong><br>API: 23-065-20382<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.8698,31.72491]},"properties":{"popup":"<strong>GWINVILLE 25-4 3</strong><br>API: 23-065-20902<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.88716,31.71713]},"properties":{"popup":"<strong>GWINVILLE 26-12 1</strong><br>API: 23-065-20404<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.90568,31.723301]},"properties":{"popup":"<strong>GWINVILLE 27-4 1</strong><br>API: 23-065-20393<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.90565,31.72035]},"properties":{"popup":"<strong>GWINVILLE 27-5 (ORIG. 27-9) 1</strong><br>API: 23-065-20360<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.847294,31.713556]},"properties":{"popup":"<strong>GWINVILLE 30-15 1</strong><br>API: 23-065-20694<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.859711,31.737391]},"properties":{"popup":"<strong>Gwinville 24-2 1</strong><br>API: 23-065-20844<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.6403,31.55592]},"properties":{"popup":"<strong>HATHORN 19-9 1</strong><br>API: 23-065-21057<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.88262,31.72925]},"properties":{"popup":"<strong>McLaurin 23-14 1</strong><br>API: 23-065-20258<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-89.60636,31.51874]},"properties":{"popup":"<strong>THOMPSON 4-1 1</strong><br>API: 23-065-21015<br>Jefferson Davis, MS<br>Operator: EOG RESOURCES INC","color":"#457b9d","state":"MS"}}]};
+
+  var map = L.map('map',{preferCanvas:true}).setView([38.5,-98.0],5);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom:19
+  }).addTo(map);
+
+  if(geojson.features.length>0){
+    var layer = L.geoJSON(geojson,{
+      pointToLayer:function(f,ll){
+        return L.circleMarker(ll,{
+          radius:5,fillColor:f.properties.color,
+          color:'#fff',weight:0.6,opacity:.9,fillOpacity:.85
+        });
+      },
+      onEachFeature:function(f,layer){
+        layer.bindPopup(f.properties.popup,{maxWidth:280});
+        layer.on('mouseover',function(){this.openPopup()});
+      }
+    }).addTo(map);
+    map.fitBounds(layer.getBounds(),{padding:[30,30]});
+  }
+
+  var legend = L.control({position:'bottomright'});
+  legend.onAdd = function(){
+    var d = L.DomUtil.create('div','legend');
+    d.innerHTML = '<h4>State</h4><div style="display:flex;align-items:center;gap:7px;margin:3px 0"><span style="width:11px;height:11px;border-radius:50%;background:#457b9d;flex-shrink:0"></span><span>MS <span style="color:#94a3b8">(33)</span></span></div>';
+    return d;
+  };
+  legend.addTo(map);
+})();
+</script>
+</body>
+</html>

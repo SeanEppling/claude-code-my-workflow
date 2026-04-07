@@ -47,6 +47,7 @@ from src.compiler.query import (
     query_wells,
     search_wells,
 )
+from src.visualizations import generate_map
 
 logging.basicConfig(
     level=logging.WARNING,
@@ -267,6 +268,38 @@ TOOLS = [
         },
     },
     {
+        "name": "generate_map",
+        "description": (
+            "Generate an interactive HTML map of wells matching optional filters. "
+            "Opens in any browser — wells are color-coded by state with clickable popups "
+            "showing name, API, county, status, operator, and lease code. "
+            "Returns the file path of the generated map. "
+            "Use this whenever the user asks for a map, visualization, or wants to see where wells are."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "state": {
+                    "type": "string",
+                    "description": "Filter to a single state, e.g. 'NM', 'TX'",
+                },
+                "county": {
+                    "type": "string",
+                    "description": "Filter to a county (partial match), e.g. 'Eddy'",
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Filter by status: 'active' includes Producing, 'producing', 'new'",
+                },
+                "operator": {
+                    "type": "string",
+                    "description": "Filter by operator name fragment, e.g. 'EOG'",
+                },
+            },
+            "required": [],
+        },
+    },
+    {
         "name": "list_all_wells",
         "description": (
             "List all wells in the database, paginated. "
@@ -323,6 +356,16 @@ def dispatch_tool(name: str, args: Dict[str, Any]) -> Any:
         return count_wells(args.get("group_by"), args.get("state"))
     elif name == "data_quality":
         return data_quality()
+    elif name == "generate_map":
+        path = generate_map(
+            state=args.get("state"),
+            county=args.get("county"),
+            status=args.get("status"),
+            operator=args.get("operator"),
+        )
+        import subprocess
+        subprocess.Popen(["open", path])
+        return {"file": path, "message": f"Map generated and opened: {path}"}
     elif name == "list_all_wells":
         return list_all_wells(
             limit=args.get("limit", 100),
